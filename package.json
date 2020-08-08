@@ -1,0 +1,35 @@
+{
+  "name": "rbm",
+  "version": "0.1.0",
+  "description": "JavaScript library of the generative stochastic artificial neural network",
+  "main": "RBM.js",
+  "scripts": {
+    "lint": "eslint ./src/*.mjs"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "prettier": "^2.0.2"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cd/restricted-boltzmann-machine.git"
+  },
+  "keywords": [
+    "rbm",
+    "restricted",
+    "boltzmann",
+    "machine",
+    "library",
+    "javascript"
+  ],
+  "author": "Christian Diederich",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cd/restricted-boltzmann-machine/issues"
+  },
+  "homepage": "https://github.com/cd/restricted-boltzmann-machine#readme"
+}
