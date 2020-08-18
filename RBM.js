@@ -6,7 +6,7 @@ const RBM = (function () {
 
   /**
    * Constructor function
-   * @param  {array} [weights]
+   * @param  {array} [weights] Inital weights
    */
   const RBM = function (weights) {
     this.weights = weights;
@@ -31,10 +31,13 @@ const RBM = (function () {
       const arr = [];
       for (let j = 0; j <= numberOfHiddenNodes; j++) {
         if (i === 0 && j === 0) {
+          // No connection between bias units
           arr.push(null);
         } else if (i === 0) {
+          // Hidden bias weights
           arr.push(0);
         } else if (j === 0) {
+          // Visible bias weights
           arr.push(
             // TODO
             // Math.log(
@@ -43,6 +46,8 @@ const RBM = (function () {
             0
           );
         } else {
+          // Regular weights from a zero-mean Gaussian with
+          // standard deviation of 0.01
           arr.push(this._gaussianRand(0.01));
         }
       }
@@ -77,11 +82,12 @@ const RBM = (function () {
    * @param {array} dataset Training dataset of visible layers
    * @param {number} [learningRate=0.1] Learning rate
    * @param {number} [hiddenNodes] Number of hidden nodes to init the weights
-   * @return {number} Error
+   * @return {number} Error rate
    */
   RBM.prototype.train = function (dataset, learningRate = 0.1, hiddenNodes) {
     const errors = [];
 
+    // Init weights if RBM isn't initialized
     if (!this.weights && hiddenNodes) {
       const proportions = new Array(dataset[0].length).fill(0);
       for (let i = 0; i < proportions.length; i++) {
@@ -93,6 +99,7 @@ const RBM = (function () {
       this._setInitWeights(proportions, hiddenNodes);
     }
 
+    // Loop through every training dataset
     dataset.forEach((data) => {
       // Reconstruction
       let hiddenLayer = this.getHiddenLayer(data);
@@ -119,10 +126,11 @@ const RBM = (function () {
           // Learning rule
           this.weights[i][j] += learningRate * (positive - negative);
 
-          // Update error
+          // Update error rate
           error += Math.pow((data[i] ? 1 : 0) - negative, 2);
         }
       }
+
       errors.push(error);
     });
 
@@ -142,13 +150,24 @@ const RBM = (function () {
     ) {
       throw new Error('Invalid parameter');
     }
+
+    // Add bias unit
     const nodes = [true, ...visibleNodes];
+
+    // Init array of hidden nodes
     const out = [];
+
+    // Loop through every hidden unit
     for (let i = 1; i < this.weights[0].length; i++) {
+      // Init activisition energy
       let value = 0;
+
+      // Add weights
       for (let j = 0; j < nodes.length; j++) {
         if (nodes[j]) value += this.weights[j][i];
       }
+
+      // Calc hidden unit
       out.push({
         state: this._logistic(value) > Math.random(),
         probability: this._logistic(value),
@@ -170,13 +189,24 @@ const RBM = (function () {
     ) {
       throw new Error('Invalid parameter');
     }
+
+    // Add bias unit
     const nodes = [true, ...hiddenNodes];
+
+    // Init array of visible nodes
     const out = [];
+
+    // Loop through every visible unit
     for (let i = 1; i < this.weights.length; i++) {
+      // Init activisition energy
       let value = 0;
+
+      // Add weights
       for (let j = 0; j < nodes.length; j++) {
         if (nodes[j]) value += this.weights[i][j];
       }
+
+      // Calc visible unit
       out.push({
         state: this._logistic(value) > Math.random(),
         probability: this._logistic(value),
