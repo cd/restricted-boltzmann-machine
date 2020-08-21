@@ -17,10 +17,10 @@ for (let index = 0; index < 10000; index++) {
   myRBM.train(
     // Use 4 visible units for 4 numbers
     [
-      [true, false, false, false], // "one"
-      [false, true, false, false], // "two"
-      [false, false, true, false], // "three"
-      [false, false, false, true], // "four"
+      [1, 0, 0, 0], // "one"
+      [0, 1, 0, 0], // "two"
+      [0, 0, 1, 0], // "three"
+      [0, 0, 0, 1], // "four"
     ],
 
     // Learning rate

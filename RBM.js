@@ -15,7 +15,7 @@ const RBM = (function () {
   /**
    * RBM version
    */
-  RBM.prototype.version = '0.1.0';
+  RBM.prototype.version = '0.2.0';
 
   /**
    * Init weights and biases
@@ -116,7 +116,7 @@ const RBM = (function () {
       let hiddenLayerNeg;
       for (let i = 0; i < gibbsSteps; i++) {
         hiddenLayerNeg = this.getHiddenLayer(
-          visibleLayerNeg.map((e) => e.state || e) // TODO: use probability
+          visibleLayerNeg.map((e) => e.probability || e)
         );
         visibleLayerNeg = this.getVisibleLayer(
           hiddenLayerNeg.map((e) => e.state)
@@ -124,10 +124,10 @@ const RBM = (function () {
       }
 
       // Add biases
-      visibleLayerPos = [true, ...visibleLayerPos];
-      hiddenLayerPos = [{ state: true, probability: 1 }, ...hiddenLayerPos];
-      visibleLayerNeg = [{ state: true, probability: 1 }, ...visibleLayerNeg];
-      hiddenLayerNeg = [{ state: true, probability: 1 }, ...hiddenLayerNeg];
+      visibleLayerPos = [1, ...visibleLayerPos];
+      hiddenLayerPos = [{ state: 1, probability: 1 }, ...hiddenLayerPos];
+      visibleLayerNeg = [{ state: 1, probability: 1 }, ...visibleLayerNeg];
+      hiddenLayerNeg = [{ state: 1, probability: 1 }, ...hiddenLayerNeg];
 
       // Init error rate
       let error = 0;
@@ -171,7 +171,7 @@ const RBM = (function () {
     }
 
     // Add bias unit
-    const nodes = [true, ...visibleNodes];
+    const nodes = [1, ...visibleNodes];
 
     // Init array of hidden nodes
     const out = [];
@@ -183,12 +183,12 @@ const RBM = (function () {
 
       // Add weights
       for (let j = 0; j < nodes.length; j++) {
-        if (nodes[j]) value += this.weights[j][i];
+        value += this.weights[j][i] * nodes[j];
       }
 
       // Calc hidden unit
       out.push({
-        state: this._logistic(value) > Math.random(),
+        state: this._logistic(value) > Math.random() ? 1 : 0,
         probability: this._logistic(value),
       });
     }
@@ -210,7 +210,7 @@ const RBM = (function () {
     }
 
     // Add bias unit
-    const nodes = [true, ...hiddenNodes];
+    const nodes = [1, ...hiddenNodes];
 
     // Init array of visible nodes
     const out = [];
@@ -222,12 +222,12 @@ const RBM = (function () {
 
       // Add weights
       for (let j = 0; j < nodes.length; j++) {
-        if (nodes[j]) value += this.weights[i][j];
+        value += this.weights[i][j] * nodes[j];
       }
 
       // Calc visible unit
       out.push({
-        state: this._logistic(value) > Math.random(),
+        state: this._logistic(value) > Math.random() ? 1 : 0,
         probability: this._logistic(value),
       });
     }
