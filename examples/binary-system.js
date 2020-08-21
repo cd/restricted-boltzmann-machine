@@ -13,7 +13,7 @@ const formatResult = (input) => {
 const myRBM = new RBM();
 
 // Train RBM multiple times
-for (let index = 0; index < 100000; index++) {
+for (let index = 0; index < 10000; index++) {
   myRBM.train(
     // Use 4 visible units for 4 numbers
     [
@@ -25,6 +25,9 @@ for (let index = 0; index < 100000; index++) {
 
     // Learning rate
     0.1,
+
+    // Gibbs steps
+    1,
 
     // Use 2 hidden units, because you only need 2 binary digits
     // to represent the information of 4 numbers

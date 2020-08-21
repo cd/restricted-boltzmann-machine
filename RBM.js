@@ -78,13 +78,19 @@ const RBM = (function () {
   };
 
   /**
-   * Training RBM using CD_1
+   * Training RBM using CD_n
    * @param {array} dataset Training dataset of visible layers
    * @param {number} [learningRate=0.1] Learning rate
+   * @param {number} [gibbsSteps=1] Full steps of Gibbs sampling
    * @param {number} [hiddenNodes] Number of hidden nodes to init the weights
    * @return {number} Error rate
    */
-  RBM.prototype.train = function (dataset, learningRate = 0.1, hiddenNodes) {
+  RBM.prototype.train = function (
+    dataset,
+    learningRate = 0.1,
+    gibbsSteps = 1,
+    hiddenNodes
+  ) {
     const errors = [];
 
     // Init weights if RBM isn't initialized
@@ -101,33 +107,46 @@ const RBM = (function () {
 
     // Loop through every training dataset
     dataset.forEach((data) => {
-      // Reconstruction
-      let hiddenLayer = this.getHiddenLayer(data);
-      let visibleLayer = this.getVisibleLayer(hiddenLayer.map((e) => e.state));
+      // Postive CD phase
+      let visibleLayerPos = data;
+      let hiddenLayerPos = this.getHiddenLayer(data);
+
+      // Negative CD phase
+      let visibleLayerNeg = data;
+      let hiddenLayerNeg;
+      for (let i = 0; i < gibbsSteps; i++) {
+        hiddenLayerNeg = this.getHiddenLayer(
+          visibleLayerNeg.map((e) => e.state || e) // TODO: use probability
+        );
+        visibleLayerNeg = this.getVisibleLayer(
+          hiddenLayerNeg.map((e) => e.state)
+        );
+      }
 
       // Add biases
-      data = [true, ...data];
-      hiddenLayer = [{ state: true, probability: 1 }, ...hiddenLayer];
-      visibleLayer = [{ state: true, probability: 1 }, ...visibleLayer];
+      visibleLayerPos = [true, ...visibleLayerPos];
+      hiddenLayerPos = [{ state: true, probability: 1 }, ...hiddenLayerPos];
+      visibleLayerNeg = [{ state: true, probability: 1 }, ...visibleLayerNeg];
+      hiddenLayerNeg = [{ state: true, probability: 1 }, ...hiddenLayerNeg];
 
       // Init error rate
       let error = 0;
 
       // Loop through every weight (and bias)
-      for (let i = 0; i < data.length; i++) {
-        for (let j = 0; j < hiddenLayer.length; j++) {
-          // Positive statistics
-          const positive = data[i] * hiddenLayer[j].probability;
+      for (let i = 0; i < visibleLayerPos.length; i++) {
+        for (let j = 0; j < hiddenLayerPos.length; j++) {
+          // Positive statistic
+          const positive = visibleLayerPos[i] * hiddenLayerPos[j].probability;
 
-          // Negative statistics
+          // Negative statistic
           const negative =
-            visibleLayer[i].probability * hiddenLayer[j].probability;
+            visibleLayerNeg[i].probability * hiddenLayerNeg[j].probability;
 
           // Learning rule
           this.weights[i][j] += learningRate * (positive - negative);
 
           // Update error rate
-          error += Math.pow((data[i] ? 1 : 0) - negative, 2);
+          error += Math.pow((visibleLayerPos[i] ? 1 : 0) - negative, 2);
         }
       }
 
