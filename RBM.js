@@ -15,7 +15,7 @@ const RBM = (function () {
   /**
    * RBM version
    */
-  RBM.prototype.version = '0.2.0';
+  RBM.prototype.version = 'DEV';
 
   /**
    * Init weights and biases
@@ -39,11 +39,10 @@ const RBM = (function () {
         } else if (j === 0) {
           // Visible bias weights
           arr.push(
-            // TODO
-            // Math.log(
-            //   proportionOfVisibleNodes[i] / (1 - proportionOfVisibleNodes[i])
-            // )
-            0
+            Math.log(
+              proportionOfVisibleNodes[i - 1] /
+                (1 - proportionOfVisibleNodes[i - 1])
+            )
           );
         } else {
           // Regular weights from a zero-mean Gaussian with
@@ -80,15 +79,15 @@ const RBM = (function () {
   /**
    * Training RBM using CD_n
    * @param {array} dataset Training dataset of visible layers
-   * @param {number} [learningRate=0.1] Learning rate
-   * @param {number} [gibbsSteps=1] Full steps of Gibbs sampling
+   * @param {number} learningRate Learning rate
+   * @param {number} gibbsSteps Full steps of Gibbs sampling
    * @param {number} [hiddenNodes] Number of hidden nodes to init the weights
    * @return {number} Error rate
    */
   RBM.prototype.train = function (
     dataset,
-    learningRate = 0.1,
-    gibbsSteps = 1,
+    learningRate,
+    gibbsSteps,
     hiddenNodes
   ) {
     const errors = [];
