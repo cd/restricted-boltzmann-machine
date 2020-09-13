@@ -133,6 +133,9 @@ const RBM = (function () {
 
       // Loop through every weight (and bias)
       for (let i = 0; i < visibleLayerPos.length; i++) {
+        // Do not update weights if visible node is negative
+        if (visibleLayerPos[i] < 0) continue;
+
         for (let j = 0; j < hiddenLayerPos.length; j++) {
           // Positive statistic
           const positive = visibleLayerPos[i] * hiddenLayerPos[j].probability;
@@ -180,8 +183,11 @@ const RBM = (function () {
       // Init activisition energy
       let value = 0;
 
-      // Add weights
       for (let j = 0; j < nodes.length; j++) {
+        // Ignore negative visible nodes
+        if (nodes[j] < 0) continue;
+
+        // Update activisition energy
         value += this.weights[j][i] * nodes[j];
       }
 
